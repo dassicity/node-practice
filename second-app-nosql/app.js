@@ -9,7 +9,7 @@ const errorPage = require('./controllers/404');
 const app = express();
 
 app.set('view engine', 'ejs');          // Here you tell express which engine to use when it finds a template
-app.set('views', 'views');  // Here you tell express where to find these templates. default folder is views, 
+app.set('views', 'views');              // Here you tell express where to find these templates. default folder is views, 
 //if you do not have any folder named views then it's necessary to mention it here
 
 
