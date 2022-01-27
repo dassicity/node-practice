@@ -43,8 +43,20 @@ module.exports = class Cart {
                 return;
             }
             const productQty = product.qty;
-            updatedCart.products = updatedCart.products.filter(prod => prod.id !== id);
-            updatedCart.totalPrice -= productPrice * productQty;
+            // updatedCart.products = updatedCart.products.filter(prod => prod.id !== id);
+            // updatedCart.products = updatedCart.products.forEach(prod => prod.qty = productQty - 1);
+            updatedCart.products.forEach(prod => {
+                if (prod.id === id) {
+                    if (prod.qty = 1) {
+                        updatedCart.products.filter(prod => prod.id !== id);
+                    }
+                    else {
+                        prod.qty--;
+                    }
+                }
+            });
+            updatedCart.totalPrice -= productPrice;
+            // console.log(updatedCart);
             fs.writeFile(pathToFile, JSON.stringify(updatedCart), (err) => {
                 // console.log(err);
             });
