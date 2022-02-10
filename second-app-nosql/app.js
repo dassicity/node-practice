@@ -1,11 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-// const path = require('path');
+const path = require('path');
 
 const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
 const errorPage = require('./controllers/404');
-const mongoConnect = require('./util/database');
+const mongoConnect = require('./util/database').mongoConnect;
 
 const app = express();
 
@@ -22,9 +22,9 @@ app.set('views', 'views');              // Here you tell express where to find t
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(adminRouter);
-app.use(shopRouter);
-// app.use(express.static(path.join(__dirname, 'public')));
-
+// app.use(shopRouter);
+app.use(express.static(path.join(__dirname, 'public')));        // Used to serve static things like css and images. Now those can be accessed 
+// at <url>/public
 app.use(errorPage.noPage);
 
 // const server = http.createServer(app);
@@ -32,6 +32,6 @@ app.use(errorPage.noPage);
 // server.listen(3000);
 
 mongoConnect((client) => {
-    console.log(client);
+    // console.log(client);
     app.listen(3000);
 });
