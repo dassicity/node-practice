@@ -22,7 +22,7 @@ app.set('views', 'views');              // Here you tell express where to find t
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(adminRouter);
-// app.use(shopRouter);
+app.use(shopRouter);
 app.use(express.static(path.join(__dirname, 'public')));        // Used to serve static things like css and images. Now those can be accessed 
 // at <url>/public
 app.use(errorPage.noPage);

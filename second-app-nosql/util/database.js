@@ -6,7 +6,7 @@ let _db;
 const mongoConnect = callback => {          // connecting to the mongodb server
     mongoClient.connect('mongodb+srv://dassic:Dassic007@cluster0.ad9yl.mongodb.net/shop?retryWrites=true&w=majority')
         .then((client) => {
-            // console.log("Connected!");
+            console.log("Connected!");
             _db = client.db();              // Here, we are exporting the database from the client through getDb method.
             callback(client);
         })

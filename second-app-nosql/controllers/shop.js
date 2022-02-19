@@ -2,41 +2,49 @@ const Cart = require('../models/cart');
 const Product = require('../models/product');
 
 exports.showProducts = (req, res, next) => {
-    Product.fetchAll(products => {
-        res.render('shop/product-list.ejs', {
-            prods: products,
-            title: 'All Products',
-            path: '/products',
-        });
-        // console.log(adminData.products);
-        // res.sendFile(path.join(__dirname, '../', 'views', 'shop.html'));
+    Product.fetchAll()
+        .then(products => {
+            res.render('shop/product-list.ejs', {
+                prods: products,
+                title: 'All Products',
+                path: '/products',
+            })
+        })
+        .catch()
+    // console.log(adminData.products);
+    // res.sendFile(path.join(__dirname, '../', 'views', 'shop.html'));
 
-    });
+};
+
+exports.showIndex = (req, res, next) => {
+    Product.fetchAll()
+        .then(products => {
+            res.render('shop/index.ejs', {
+                prods: products,
+                title: 'My Shop',
+                path: '/',
+            })
+        })
+        .catch()
 };
 
 exports.showProduct = (req, res, next) => {
     const id = req.params.productID;
-    Product.findProductByID(id, product => {
-        // console.log(product);
-        res.render('shop/product-detail.ejs', {
-            prods: product,
-            path: `/products/${id}`,
-            title: 'This Product'
-        });
-    });
-
-    console.log(id);
+    Product.fetchById(id)
+        .then(product => {
+            // console.log(product);
+            res.render('shop/product-detail.ejs', {
+                prods: product,
+                path: `/products/${id}`,
+                title: 'This Product'
+            })
+        }
+        )
+        .catch(err => {
+            console.log(err);
+        })
 };
 
-exports.showIndex = (req, res, next) => {
-    Product.fetchAll(products => {
-        res.render('shop/index.ejs', {
-            prods: products,
-            title: 'My Shop',
-            path: '/',
-        });
-    });
-};
 
 exports.showCart = (req, res, next) => {
     Cart.getCart(cart => {
