@@ -6,6 +6,7 @@ const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
 const errorPage = require('./controllers/404');
 const mongoConnect = require('./util/database').mongoConnect;
+const User = require('./models/user');
 
 const app = express();
 
@@ -20,6 +21,16 @@ app.set('views', 'views');              // Here you tell express where to find t
 // });
 
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use((req, res, next) => {
+    User.findById('6213aa88bf6a27e033d6e120')
+        .then(user => {
+            // console.log(user);
+            req.user = user;
+            next();
+        })
+        .catch(err => console.log(err));
+})
 
 app.use(adminRouter);
 app.use(shopRouter);

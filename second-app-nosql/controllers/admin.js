@@ -13,7 +13,7 @@ exports.postAddProducts = (req, res, next) => {
     const imageURL = req.body.imageURL;
     const description = req.body.description;
     const price = req.body.price;
-    const product = new Product(title, imageURL, description, price);
+    const product = new Product(title, imageURL, description, price, null, req.user._id);
     product.save()
         .then(() => {
             res.redirect('/products');
@@ -61,8 +61,13 @@ exports.postEditProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
     const id = req.body.productId;
-    Product.deleteById(new mongodb.ObjectId(id));
-    res.redirect('/admin/products');
+    Product.deleteById(id)
+        .then(() => {
+            res.redirect('/admin/products');
+        })
+        .catch(err => {
+            console.log(err);
+        });
 };
 
 exports.getProducts = (req, res, next) => {
