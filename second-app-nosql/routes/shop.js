@@ -3,21 +3,23 @@ const express = require('express');
 
 const router = express.Router();
 
-const shopRouter = require('../controllers/shop');
+const shopController = require('../controllers/shop');
 
-router.get('/', shopRouter.showIndex);
+router.get('/', shopController.showIndex);
 
-router.get('/products', shopRouter.showProducts);
+router.get('/products', shopController.showProducts);
 
-router.get('/products/:productID', shopRouter.showProduct);    // With : you tell express that after /products there will come a path
+router.get('/products/:productID', shopController.showProduct);    // With : you tell express that after /products there will come a path
 
-router.get('/cart', shopRouter.showCart);
+router.get('/cart', shopController.showCart);
 
-router.post('/add-to-cart', shopRouter.postCart);
+router.post('/add-to-cart', shopController.postCart);
 
-router.post('/cart-delete-item', shopRouter.postDeleteCartItem);
+router.post('/cart-delete-item', shopController.postDeleteCartItem);
 
-router.get('/orders', shopRouter.showOrders);
+router.post('/create-order', shopController.postOrder);
+
+router.get('/orders', shopController.showOrders);
 
 router.get('/checkout');
 

@@ -91,11 +91,26 @@ exports.postDeleteCartItem = (req, res, next) => {
 
 };
 
+exports.postOrder = (req, res, next) => {
+    req.user
+        .addOrder()
+        .then(() => {
+            res.redirect('/orders');
+        })
+        .catch()
+}
+
 exports.showOrders = (req, res, next) => {
-    res.render('shop/orders.ejs', {
-        title: 'My Orders',
-        path: '/orders',
-    });
+    req.user
+        .showOrder()
+        .then((orders) => {
+            res.render('shop/orders.ejs', {
+                title: 'My Orders',
+                path: '/orders',
+                orders: orders,
+            })
+        })
+        .catch(err => console.log(err));
 }
 
 exports.showCheckout = (req, res, next) => {
