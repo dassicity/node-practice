@@ -32,7 +32,7 @@
                                     <a href="/products/<%= product._id%>" class="btn">Details</a>
                                     <form action="/add-to-cart" method="POST">
                                         <button class="btn" type="submit">Add to cart</button>
-                                        <input type="hidden" name="productID" value="<%= product.id%>">
+                                        <input type="hidden" name="productID" value="<%= product._id%>">
                                     </form>
                                 </div>
                             </article>
