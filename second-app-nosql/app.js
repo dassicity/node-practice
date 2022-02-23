@@ -4,6 +4,8 @@ const path = require('path');
 
 const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
+const authRouter = require('./routes/auth');
+
 const errorPage = require('./controllers/404');
 const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
@@ -21,6 +23,7 @@ app.set('views', 'views');              // Here you tell express where to find t
 // });
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));        // Used to serve static things like css and images. Now those can be accessed 
 
 app.use((req, res, next) => {
     User.findById('6213aa88bf6a27e033d6e120')
@@ -32,9 +35,9 @@ app.use((req, res, next) => {
         .catch(err => console.log(err));
 })
 
-app.use(adminRouter);
+app.use('/admin', adminRouter);
 app.use(shopRouter);
-app.use(express.static(path.join(__dirname, 'public')));        // Used to serve static things like css and images. Now those can be accessed 
+app.use(authRouter);
 // at <url>/public
 app.use(errorPage.noPage);
 
