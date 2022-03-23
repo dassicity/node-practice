@@ -24,6 +24,7 @@ app.set('views', 'views');              // Here you tell express where to find t
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));        // Used to serve static things like css and images. Now those can be accessed 
+// at <url>/public
 
 app.use((req, res, next) => {
     User.findById('6213aa88bf6a27e033d6e120')
@@ -35,10 +36,9 @@ app.use((req, res, next) => {
         .catch(err => console.log(err));
 })
 
+app.use(authRouter);
 app.use('/admin', adminRouter);
 app.use(shopRouter);
-app.use(authRouter);
-// at <url>/public
 app.use(errorPage.noPage);
 
 // const server = http.createServer(app);
