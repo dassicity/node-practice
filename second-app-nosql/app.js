@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
@@ -9,6 +11,13 @@ const authRouter = require('./routes/auth');
 const errorPage = require('./controllers/404');
 const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
+
+const store = new MongoDBStore(
+    {
+        uri: 'mongodb+srv://dassic:Dassic007@cluster0.ad9yl.mongodb.net/shop?',
+        collection: 'sessions'
+    }
+)
 
 const app = express();
 
@@ -25,6 +34,8 @@ app.set('views', 'views');              // Here you tell express where to find t
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));        // Used to serve static things like css and images. Now those can be accessed 
 // at <url>/public
+app.use(session({ secret: 'dassic', saveUninitialized: false, resave: false, store: store }));    // resave=false means the session will not be saved on every request but
+// if any hting changes in the session. saveUniitialized=false means that no session will be saved for a request where it doesn't need to be saved.
 
 app.use((req, res, next) => {
     User.findById('6213aa88bf6a27e033d6e120')
