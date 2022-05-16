@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 
@@ -9,7 +10,7 @@ const shopRouter = require('./routes/shop');
 const authRouter = require('./routes/auth');
 
 const errorPage = require('./controllers/404');
-const mongoConnect = require('./util/database').mongoConnect;
+// const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
 
 const store = new MongoDBStore(
@@ -56,7 +57,14 @@ app.use(errorPage.noPage);
 
 // server.listen(3000);
 
-mongoConnect((client) => {
-    // console.log(client);
-    app.listen(3000);
-});
+// mongoConnect((client) => {
+//     // console.log(client);
+//     app.listen(3000);
+// });
+
+mongoose.connect('mongodb+srv://dassic:Dassic007@cluster0.ad9yl.mongodb.net/shop?retryWrites=true&w=majority')
+    .then(result => {
+        app.listen(3000);
+    }).catch(err => {
+        console.log(err);
+    })
