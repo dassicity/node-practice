@@ -5,7 +5,7 @@ exports.getAddProductPage = (req, res, next) => {
     res.render('admin/add-product.ejs', {
         title: 'Add Product',
         path: '/admin/add-product',
-        isAuthenticated: false,
+        isAuthenticated: true,
     });
 };
 
