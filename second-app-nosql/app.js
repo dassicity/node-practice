@@ -48,7 +48,7 @@ app.use((req, res, next) => {
         .catch(err => console.log(err));
 })
 
-app.use(authRouter);
+// app.use(authRouter);
 app.use('/admin', adminRouter);
 app.use(shopRouter);
 app.use(errorPage.noPage);
@@ -64,6 +64,7 @@ app.use(errorPage.noPage);
 
 mongoose.connect('mongodb+srv://dassic:Dassic007@cluster0.ad9yl.mongodb.net/shop?retryWrites=true&w=majority')
     .then(result => {
+        console.log("Connected to DB");
         app.listen(3000);
     }).catch(err => {
         console.log(err);

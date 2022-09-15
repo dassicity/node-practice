@@ -1,7 +1,5 @@
 <%- include('../includes/head.ejs') %>
     <link rel="stylesheet" href="/css/product.css">
-    <meta title="Products">
-
     </head>
 
     <body>
@@ -18,22 +16,18 @@
                                     </h1>
                                 </header>
                                 <div class="card__image">
-                                    <img src="<%= product.imageURL %>" alt="<%= product.title %>">
+                                    <img src="<%= product.imageUrl %>" alt="<%= product.title %>">
                                 </div>
                                 <div class="card__content">
-                                    <h2 class="product__price">Rs
-                                        <%= product.price %>
+                                    <h2 class="product__price">$<%= product.price %>
                                     </h2>
                                     <p class="product__description">
                                         <%= product.description %>
                                     </p>
                                 </div>
                                 <div class="card__actions">
-                                    <a href="/products/<%= product._id%>" class="btn">Details</a>
-                                    <form action="/add-to-cart" method="POST">
-                                        <button class="btn" type="submit">Add to cart</button>
-                                        <input type="hidden" name="productID" value="<%= product._id%>">
-                                    </form>
+                                    <a href="/products/<%= product._id %>" class="btn">Details</a>
+                                    <%- include('../includes/add-to-cart.ejs', {product: product}) %>
                                 </div>
                             </article>
                             <% } %>

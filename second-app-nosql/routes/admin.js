@@ -1,23 +1,24 @@
+const path = require('path');
+
 const express = require('express');
-// const fs = require('fs');
-// const path = require('path');
 
 const adminController = require('../controllers/admin');
-const { route } = require('./shop');
 
 const router = express.Router();
 
-// GET requests for loading a new page. POST for processing request with data from a previous page
-router.get('/admin/add-product', adminController.getAddProductPage);
+// /admin/add-product => GET
+router.get('/add-product', adminController.getAddProduct);
 
-router.post('/admin/add-product', adminController.postAddProducts);
+// /admin/products => GET
+router.get('/products', adminController.getProducts);
 
-router.get('/admin/products', adminController.getProducts);
+// /admin/add-product => POST
+router.post('/add-product', adminController.postAddProduct);
 
-router.get('/admin/edit-product/:productID', adminController.getEditProducts);
+router.get('/edit-product/:productId', adminController.getEditProduct);
 
-router.post('/admin/edit-product', adminController.postEditProducts);
+router.post('/edit-product', adminController.postEditProduct);
 
-router.post('/admin/delete-product', adminController.postDeleteProduct);
+router.post('/delete-product', adminController.postDeleteProduct);
 
 module.exports = router;
