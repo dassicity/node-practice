@@ -4,7 +4,7 @@ exports.getLogin = (req, res, next) => {
     // console.log(req.get('Cookie').split(';')[0])
     // const loggedIn = (req.get('Cookie').split(';')[0].trim().split('=')[1]);
     res.render('auth/auth.ejs', {
-        title: 'Login',
+        pageTitle: 'Login',
         path: '/login',
         isAuthenticated: req.session.loggedIn
     })
