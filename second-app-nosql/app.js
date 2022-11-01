@@ -31,7 +31,7 @@ app.set('views', 'views');              // Here you tell express where to find t
 //     console.log("In a middleware"); // the next is a function which when executed will 
 //     next();                         // allow the request to continue to the next middleware in line
 // });
-
+// console.log(process.env);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));        // Used to serve static things like css and images. Now those can be accessed 
 // at <url>/public
@@ -51,6 +51,7 @@ app.use((req, res, next) => {
 // app.use(authRouter);
 app.use('/admin', adminRouter);
 app.use(shopRouter);
+app.use(authRouter);
 app.use(errorPage.noPage);
 
 // const server = http.createServer(app);
