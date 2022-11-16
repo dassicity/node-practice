@@ -39,10 +39,15 @@ app.use(session({ secret: 'dassic', saveUninitialized: false, resave: false, sto
 // if any hting changes in the session. saveUniitialized=false means that no session will be saved for a request where it doesn't need to be saved.
 
 app.use((req, res, next) => {
-    User.findById('6213aa88bf6a27e033d6e120')
+    console.log(req.session.user);
+    if (!req.session.user) {
+        return next();
+    }
+
+    console.log("Hello");
+    User.findById(req.session.user._id)
         .then(user => {
-            // console.log(user);
-            req.user = new User(user.username, user.email, user.cart, user._id);
+            req.user = user;
             next();
         })
         .catch(err => console.log(err));
@@ -66,6 +71,18 @@ app.use(errorPage.noPage);
 mongoose.connect('mongodb+srv://dassic:Dassic007@cluster0.ad9yl.mongodb.net/shop?retryWrites=true&w=majority')
     .then(result => {
         console.log("Connected to DB");
+        User.findOne().then(user => {
+            if (!user) {
+                const user = new User({
+                    name: 'Das',
+                    email: 'dassic@test.com',
+                    cart: {
+                        items: []
+                    }
+                });
+                user.save();
+            }
+        });
         app.listen(3000);
     }).catch(err => {
         console.log(err);
