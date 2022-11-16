@@ -13,14 +13,14 @@ const errorPage = require('./controllers/404');
 // const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
 
+
+const app = express();
 const store = new MongoDBStore(
     {
         uri: 'mongodb+srv://dassic:Dassic007@cluster0.ad9yl.mongodb.net/shop?',
         collection: 'sessions'
     }
-)
-
-const app = express();
+);
 
 app.set('view engine', 'ejs');          // Here you tell express which engine to use when it finds a template
 app.set('views', 'views');              // Here you tell express where to find these templates. default folder is views, 
