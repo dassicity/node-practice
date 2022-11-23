@@ -33,21 +33,23 @@ app.set('views', 'views');              // Here you tell express where to find t
 // });
 // console.log(process.env);
 app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));        // Used to serve static things like css and images. Now those can be accessed 
 // at <url>/public
 app.use(session({ secret: 'dassic', saveUninitialized: false, resave: false, store: store }));    // resave=false means the session will not be saved on every request but
 // if any hting changes in the session. saveUniitialized=false means that no session will be saved for a request where it doesn't need to be saved.
 
 app.use((req, res, next) => {
-    console.log(req.session.user);
     if (!req.session.user) {
         return next();
     }
 
-    console.log("Hello");
+    // console.log("Hello");
     User.findById(req.session.user._id)
         .then(user => {
             req.user = user;
+            // console.log(req.user);
             next();
         })
         .catch(err => console.log(err));

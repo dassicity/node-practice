@@ -12,8 +12,12 @@ exports.getLogin = (req, res, next) => {
 }
 
 exports.postLogin = (req, res, next) => {
-    req.session.loggedIn = true;
-    res.redirect('/');
+    User.findById('6213aa88bf6a27e033d6e120')
+        .then(user => {
+            req.session.loggedIn = true;
+            req.session.user = user;
+            res.redirect('/');
+        })
 }
 
 exports.postSignup = (req, res, next) => {
@@ -34,7 +38,7 @@ exports.getSignup = (req, res, next) => {
 
 exports.postLogout = (req, res, next) => {
     req.session.destroy(err => {
-        console.log(err);
+        // console.log(err);
         res.redirect('/');
     })
 }
