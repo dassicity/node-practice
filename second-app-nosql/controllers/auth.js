@@ -16,7 +16,10 @@ exports.postLogin = (req, res, next) => {
         .then(user => {
             req.session.loggedIn = true;
             req.session.user = user;
-            res.redirect('/');
+            req.session.save((err) => {
+                console.log(err);
+                res.redirect('/');
+            });
         })
 }
 
@@ -30,7 +33,7 @@ exports.postSignup = (req, res, next) => {
 
 exports.getSignup = (req, res, next) => {
     res.render('auth/signup.ejs', {
-        title: 'Signup',
+        pageTitle: 'Signup',
         path: '/signup',
         isAuthenticated: false,
     });
