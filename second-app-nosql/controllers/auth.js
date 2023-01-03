@@ -9,7 +9,6 @@ exports.getLogin = (req, res, next) => {
     res.render('auth/auth.ejs', {
         pageTitle: 'Login',
         path: '/login',
-        isAuthenticated: req.session.loggedIn
     })
 }
 
@@ -82,7 +81,6 @@ exports.getSignup = (req, res, next) => {
     res.render('auth/signup.ejs', {
         pageTitle: 'Signup',
         path: '/signup',
-        isAuthenticated: false,
     });
 }
 
