@@ -29,7 +29,7 @@ exports.postLogin = (req, res, next) => {
                         req.session.loggedIn = true;
                         req.session.user = user;
                         return req.session.save((err) => {
-                            console.log(err);
+                            // console.log(err);
                             res.redirect('/');
                         });
                     }
