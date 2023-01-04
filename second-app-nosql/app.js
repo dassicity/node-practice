@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
+const flash = require('connect-flash');
 
 const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
@@ -22,7 +23,6 @@ const store = new MongoDBStore(
         collection: 'sessions'
     }
 );
-const csrfProtection = csrf();
 
 app.set('view engine', 'ejs');          // Here you tell express which engine to use when it finds a template
 app.set('views', 'views');              // Here you tell express where to find these templates. default folder is views, 
@@ -42,7 +42,8 @@ app.use(express.static(path.join(__dirname, 'public')));        // Used to serve
 app.use(session({ secret: 'dassic', saveUninitialized: false, resave: false, store: store }));    // resave=false means the session will not be saved on every request but
 // if any hting changes in the session. saveUniitialized=false means that no session will be saved for a request where it doesn't need to be saved.
 
-app.use(csrfProtection);
+app.use(csrf());
+app.use(flash());
 
 app.use((req, res, next) => {
     if (!req.session.user) {

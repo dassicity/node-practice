@@ -6,9 +6,15 @@ exports.getLogin = (req, res, next) => {
     // console.log(req.get('Cookie').split(';')[0])
     // const loggedIn = (req.get('Cookie').split(';')[0].trim().split('=')[1]);
     // console.log(req.session.loggedIn);
+    let message = req.flash('error');
+    if (message.length <= 0) {
+        message = null;
+    }
+    // console.log(message);
     res.render('auth/auth.ejs', {
         pageTitle: 'Login',
         path: '/login',
+        errorMessage: message,
     })
 }
 
@@ -19,6 +25,7 @@ exports.postLogin = (req, res, next) => {
     User.findOne({ email: email })
         .then(user => {
             if (!user) {
+                req.flash('error', 'Invalid email or password.');
                 return res.redirect('/login');
             }
 
@@ -32,6 +39,7 @@ exports.postLogin = (req, res, next) => {
                             res.redirect('/');
                         });
                     }
+                    req.flash('error', 'Invalid email or password.');
                     res.redirect('/login');
                 })
                 .catch(err => {
@@ -52,6 +60,12 @@ exports.postSignup = (req, res, next) => {
     User.findOne({ email: email })
         .then(userDoc => {
             if (userDoc) {
+                req.flash('signup', 'An account with this e-mail already exists. Enter a new e-mail.');
+                return res.redirect('/signup');
+            }
+
+            if (password !== confirmPassword) {
+                req.flash('signup', 'Passwords do not match.');
                 return res.redirect('/signup');
             }
 
@@ -78,9 +92,16 @@ exports.postSignup = (req, res, next) => {
 }
 
 exports.getSignup = (req, res, next) => {
+
+    let message = req.flash('signup');
+    if (message.length <= 0) {
+        message = null;
+    }
+
     res.render('auth/signup.ejs', {
         pageTitle: 'Signup',
         path: '/signup',
+        errorMessage: message,
     });
 }
 
