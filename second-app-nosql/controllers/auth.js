@@ -1,6 +1,16 @@
 const bcryptjs = require('bcryptjs');
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
+const sgMail = require('@sendgrid/mail');
 
 const User = require('../models/user');
+sgMail.setApiKey('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');
+
+const transporter = nodemailer.createTransport(sendgridTransport({
+    auth: {
+        api_key: 'SG.QvknE4zdSi2up7vLe6JSQg.0R6Sdffi8bZ6G9RcVQ3X7AmP0weOixNs2lyOZyqfX - k'
+    }
+}))
 
 exports.getLogin = (req, res, next) => {
     // console.log(req.get('Cookie').split(';')[0])
@@ -80,9 +90,29 @@ exports.postSignup = (req, res, next) => {
                     return user.save();
                 })
                 .then(result => {
-                    if (result) {
-                        res.redirect('/login');
-                    }
+                    // return transporter.sendMail({
+                    //     to: email,
+                    //     from: 'dassic@outlook.com',
+                    //     subject: 'Successfully signed Up',
+                    //     html: '<h1>You successfully signed up!</h1>'
+                    // });
+                    sgMail.send({
+                        to: email,
+                        from: 'dassic@outlook.com',
+                        subject: 'Signed Up Successfully!',
+                        html: '<h1>You have successfully signed up to Dassify Shop!</h1>'
+                    })
+                        .then(res => {
+                            console.log('Email sent!');
+                            console.log(res);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                    res.redirect('/login');
+                })
+                .catch(err => {
+                    console.log(err);
                 });
         })
 
