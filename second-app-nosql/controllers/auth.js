@@ -5,11 +5,12 @@ const sendgridTransport = require('nodemailer-sendgrid-transport');
 const sgMail = require('@sendgrid/mail');
 
 const User = require('../models/user');
+const user = require('../models/user');
 sgMail.setApiKey('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');
 
 const transporter = nodemailer.createTransport(sendgridTransport({
     auth: {
-        api_key: 'SG.QvknE4zdSi2up7vLe6JSQg.0R6Sdffi8bZ6G9RcVQ3X7AmP0weOixNs2lyOZyqfX - k'
+        api_key: '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'
     }
 }))
 
@@ -91,26 +92,27 @@ exports.postSignup = (req, res, next) => {
                     return user.save();
                 })
                 .then(result => {
-                    // return transporter.sendMail({
-                    //     to: email,
-                    //     from: 'dassic@outlook.com',
-                    //     subject: 'Successfully signed Up',
-                    //     html: '<h1>You successfully signed up!</h1>'
-                    // });
-                    sgMail.send({
+                    res.redirect('/login');
+                    return transporter.sendMail({
                         to: email,
                         from: 'dassic@outlook.com',
-                        subject: 'Signed Up Successfully!',
-                        html: '<h1>You have successfully signed up to Dassify Shop!</h1>'
+                        subject: 'Successfully signed Up',
+                        html: '<h1>You successfully signed up!</h1>'
                     })
+                        // sgMail.send({
+                        //     to: email,
+                        //     from: 'dassic@outlook.com',
+                        //     subject: 'Signed Up Successfully!',
+                        //     html: '<h1>You have successfully signed up to Dassify Shop!</h1>'
+                        // })
                         .then(res => {
-                            console.log('Email sent!');
+                            console.log('Email sent! To - ');
+                            console.log(email);
                             console.log(res);
                         })
                         .catch(err => {
                             console.log(err);
                         })
-                    res.redirect('/login');
                 })
                 .catch(err => {
                     console.log(err);
@@ -177,8 +179,9 @@ exports.postReset = (req, res, next) => {
                 return user.save();
             })
             .then(result => {
+                // console.log(result);
                 res.redirect('/');
-                sgMail.send({
+                transporter.sendMail({
                     to: req.body.email,
                     from: 'dassic@outlook.com',
                     subject: 'Reset your password!',
@@ -187,9 +190,65 @@ exports.postReset = (req, res, next) => {
                     <p>Click <a href='https://localhost:3000/reset/${token}' >here</a> to reset your password!</p>
                     `
                 })
+                // sgMail.send({
+                //     to: req.body.email,
+                //     from: 'dassic@outlook.com',
+                //     subject: 'Reset your password!',
+                //     html: `
+                //     <p>You requested for a change to your current password.</p>
+                //     <p>Click <a href='https://localhost:3000/reset/${token}' >here</a> to reset your password!</p>
+                //     `
+                // })
             })
             .catch(err => {
                 console.log(err);
             })
     });
+}
+
+exports.getNewPassword = (req, res, next) => {
+    const token = req.params.token;
+
+    user.findOne({ resetToken: token, resetTokenExpiry: { $gt: Date.now() } })
+        .then(user => {
+            let message = req.flash('error');
+            if (message.length <= 0) {
+                message = null;
+            }
+            // console.log(message);
+            res.render('auth/new-password.ejs', {
+                pageTitle: 'Update Password',
+                path: '/new-password',
+                errorMessage: message,
+                userId: user._id,
+                resetToken: token
+            })
+        })
+        .catch(err => {
+            console.log(err);
+        })
+}
+
+exports.postNewPassword = (req, res, next) => {
+    const password = req.body.password;
+    const userId = req.body.userId;
+    const resetToken = req.body.token;
+    let newUser;
+    user.findOne({ _id: userId, resetToken: resetToken, resetTokenExpiry: { $gt: Date.now() } })
+        .then(user => {
+            newUser = user;
+            return bcryptjs.hash(password, 12);
+        })
+        .then(hashedPass => {
+            newUser.password = hashedPass;
+            newUser.resetToken = undefined;
+            newUser.resetTokenExpiry = undefined;
+            return newUser.save();
+        })
+        .then(result => {
+            res.redirect('/login');
+        })
+        .catch(err => {
+            console.log(err);
+        })
 }
