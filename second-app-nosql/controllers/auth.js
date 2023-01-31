@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const bcryptjs = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
@@ -140,4 +141,55 @@ exports.postLogout = (req, res, next) => {
         // console.log(err);
         res.redirect('/');
     })
+}
+
+exports.getReset = (req, res, next) => {
+    let message = req.flash('error');
+    if (message.length <= 0) {
+        message = null;
+    }
+    // console.log(message);
+    res.render('auth/reset.ejs', {
+        pageTitle: 'Reset Password',
+        path: '/reset',
+        errorMessage: message,
+    })
+}
+
+exports.postReset = (req, res, next) => {
+    crypto.randomBytes(32, (err, buffer) => {
+        if (err) {
+            console.log(err);
+            return res.redirect('/reset');
+        }
+
+        const token = buffer.toString('hex');
+        User.findOne({ email: req.body.email })
+            .then(user => {
+                if (!user) {
+                    req.flash('error', 'No user with that email address found!');
+                    return res.redirect('/reset');
+                }
+
+                user.resetToken = token;
+                user.resetTokenExpiry = Date.now() + 3600000;
+
+                return user.save();
+            })
+            .then(result => {
+                res.redirect('/');
+                sgMail.send({
+                    to: req.body.email,
+                    from: 'dassic@outlook.com',
+                    subject: 'Reset your password!',
+                    html: `
+                    <p>You requested for a change to your current password.</p>
+                    <p>Click <a href='https://localhost:3000/reset/${token}' >here</a> to reset your password!</p>
+                    `
+                })
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    });
 }
