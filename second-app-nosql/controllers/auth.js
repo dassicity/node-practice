@@ -3,6 +3,7 @@ const bcryptjs = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
 const sgMail = require('@sendgrid/mail');
+const { validationResult } = require('express-validator/check');
 
 const User = require('../models/user');
 const user = require('../models/user');
@@ -68,60 +69,65 @@ exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
+    const error = validationResult(req);
 
-    User.findOne({ email: email })
-        .then(userDoc => {
-            if (userDoc) {
-                req.flash('signup', 'An account with this e-mail already exists. Enter a new e-mail.');
-                return res.redirect('/signup');
-            }
+    if (!error.isEmpty()) {
+        return res.status(422).render('auth/signup.ejs', {
+            pageTitle: 'Signup',
+            path: '/signup',
+            errorMessage: error.array()[0].msg,
+            oldData: { email: email, password: password, confirmPassword: confirmPassword },
+        });
+    }
 
-            if (password !== confirmPassword) {
-                req.flash('signup', 'Passwords do not match.');
-                return res.redirect('/signup');
-            }
+    // User.findOne({ email: email })
+    //     .then(userDoc => {
+    //         if (userDoc) {
+    //             req.flash('signup', 'An account with this e-mail already exists. Enter a new e-mail.');
+    //             return res.redirect('/signup');
+    //         }
 
-            return bcryptjs.hash(password, 12)
-                .then(hashedPass => {
-                    const user = new User({
-                        email: email,
-                        password: hashedPass,
-                        cart: { items: [] }
-                    });
+    // if (password !== confirmPassword) {
+    //     req.flash('signup', 'Passwords do not match.');
+    //     return res.redirect('/signup');
+    // }
 
-                    return user.save();
-                })
-                .then(result => {
-                    res.redirect('/login');
-                    return transporter.sendMail({
-                        to: email,
-                        from: 'dassic@outlook.com',
-                        subject: 'Successfully signed Up',
-                        html: '<h1>You successfully signed up!</h1>'
-                    })
-                        // sgMail.send({
-                        //     to: email,
-                        //     from: 'dassic@outlook.com',
-                        //     subject: 'Signed Up Successfully!',
-                        //     html: '<h1>You have successfully signed up to Dassify Shop!</h1>'
-                        // })
-                        .then(res => {
-                            console.log('Email sent! To - ');
-                            console.log(email);
-                            console.log(res);
-                        })
-                        .catch(err => {
-                            console.log(err);
-                        })
+    bcryptjs.hash(password, 12)
+        .then(hashedPass => {
+            const user = new User({
+                email: email,
+                password: hashedPass,
+                cart: { items: [] }
+            });
+
+            return user.save();
+        })
+        .then(result => {
+            res.redirect('/login');
+            return transporter.sendMail({
+                to: email,
+                from: 'dassic@outlook.com',
+                subject: 'Successfully signed Up',
+                html: '<h1>You successfully signed up!</h1>'
+            })
+                // sgMail.send({
+                //     to: email,
+                //     from: 'dassic@outlook.com',
+                //     subject: 'Signed Up Successfully!',
+                //     html: '<h1>You have successfully signed up to Dassify Shop!</h1>'
+                // })
+                .then(res => {
+                    console.log('Email sent! To - ');
+                    console.log(email);
+                    console.log(res);
                 })
                 .catch(err => {
                     console.log(err);
-                });
+                })
         })
-
-        .catch(
-            err => { console.log(err) }
-        );
+        .catch(err => {
+            console.log(err);
+        });
 }
 
 exports.getSignup = (req, res, next) => {
@@ -135,6 +141,7 @@ exports.getSignup = (req, res, next) => {
         pageTitle: 'Signup',
         path: '/signup',
         errorMessage: message,
+        oldData: { email: '', password: '', confirmPassword: '' },
     });
 }
 
