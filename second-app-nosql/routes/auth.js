@@ -8,7 +8,10 @@ router.get('/login', authController.getLogin);
 
 router.get('/signup', authController.getSignup);
 
-router.post('/login', authController.postLogin);
+router.post('/login',
+    check('email').isEmail().withMessage('Please enter a valid email id!'),
+    body('password', 'Please enter a valid password!').isLength({ min: 6 }).isAlphanumeric(),
+    authController.postLogin);
 
 router.post('/signup',
     check('email').isEmail().withMessage('Please enter a valid email!').custom((value, { req }) => {
