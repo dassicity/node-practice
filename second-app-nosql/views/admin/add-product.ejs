@@ -7,25 +7,34 @@
         <%- include('../includes/navigation.ejs') %>
 
             <main>
-                <form class="product-form" action="/admin/add-product" method="POST">
-                    <div class="form-control">
-                        <label for="title">Title</label>
-                        <input type="text" name="title" id="title" placeholder="Enter the Title">
+                <% if(errorMessage) {%>
+                    <div class="user-message user-message--error">
+                        <%= errorMessage %>
                     </div>
-                    <div class="form-control">
-                        <label for="imageURL">Image URL</label>
-                        <input type="text" name="imageURL" id="imageURL" placeholder="Enter the URL">
-                    </div>
-                    <div class="form-control">
-                        <label for="price">Price</label>
-                        <input type="number" name="price" id="price" step="0.01" placeholder="Enter the Price">
-                    </div>
-                    <div class="form-control">
-                        <label for="description">Description</label>
-                        <textarea name="description" id="description" rows="5" placeholder="Add Description"></textarea>
-                    </div>
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button class="btn" type="submit">Add Product</button>
-                </form>
+                    <%}%>
+                        <form class="product-form" action="/admin/add-product" method="POST">
+                            <div class="form-control">
+                                <label for="title">Title</label>
+                                <input type="text" name="title" id="title" placeholder="Enter the Title"
+                                    value="<%= oldData.title %>">
+                            </div>
+                            <div class="form-control">
+                                <label for="imageURL">Image URL</label>
+                                <input type="text" name="imageUrl" id="imageUrl" placeholder="Enter the URL"
+                                    value="<%= oldData.imageUrl %>">
+                            </div>
+                            <div class="form-control">
+                                <label for="price">Price</label>
+                                <input type="number" name="price" id="price" step="0.01" placeholder="Enter the Price"
+                                    value="<%= oldData.price %>">
+                            </div>
+                            <div class="form-control">
+                                <label for="description">Description</label>
+                                <textarea name="description" id="description" rows="5" placeholder="Add Description"
+                                    value><%= oldData.description %></textarea>
+                            </div>
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button class="btn" type="submit">Add Product</button>
+                        </form>
             </main>
             <%- include('../includes/end.ejs') %>

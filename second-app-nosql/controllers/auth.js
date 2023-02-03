@@ -28,6 +28,7 @@ exports.getLogin = (req, res, next) => {
         pageTitle: 'Login',
         path: '/login',
         errorMessage: message,
+        oldData: { email: '', password: '' },
     })
 }
 
@@ -56,7 +57,7 @@ exports.postLogin = (req, res, next) => {
                     pageTitle: 'Login',
                     path: '/login',
                     errorMessage: "Invalid email or password",
-                    oldData: { email: email, password: password, confirmPassword: confirmPassword },
+                    oldData: { email: email, password: password, },
                 });
             }
 
@@ -216,7 +217,7 @@ exports.postReset = (req, res, next) => {
                     subject: 'Reset your password!',
                     html: `
                     <p>You requested for a change to your current password.</p>
-                    <p>Click <a href='https://localhost:3000/reset/${token}' >here</a> to reset your password!</p>
+                    <p>Click <a href='http://localhost:3000/reset/${token}' >here</a> to reset your password!</p>
                     `
                 })
                 // sgMail.send({
