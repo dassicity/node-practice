@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const { validationResult } = require('express-validator/check')
+const mongoose = require('mongoose');
 
 exports.getAddProduct = (req, res, next) => {
     res.render('admin/add-product', {
@@ -44,7 +45,18 @@ exports.postAddProduct = (req, res, next) => {
             res.redirect('/admin/products');
         })
         .catch(err => {
-            console.log(err);
+            // console.log(err);
+            // return res.status(500).render('admin/add-product', {
+            //     pageTitle: 'Add Product',
+            //     path: '/admin/add-product',
+            //     // editing: false,
+            //     errorMessage: 'Some error occurred on our end',
+            //     oldData: { title: title, imageUrl: imageUrl, price: price, description: description },
+            // });
+            // res.redirect('/500');
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            next(error);
         });
 };
 
@@ -68,7 +80,11 @@ exports.getEditProduct = (req, res, next) => {
                 hasError: false,
             });
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            next(error);
+        });
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -106,7 +122,11 @@ exports.postEditProduct = (req, res, next) => {
                     res.redirect('/admin/products');
                 })
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            next(error);
+        });
 };
 
 exports.getProducts = (req, res, next) => {
@@ -121,7 +141,11 @@ exports.getProducts = (req, res, next) => {
                 path: '/admin/products',
             });
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            next(error);
+        });
 };
 
 exports.postDeleteProduct = (req, res, next) => {
@@ -131,5 +155,9 @@ exports.postDeleteProduct = (req, res, next) => {
             // console.log('DESTROYED PRODUCT');
             res.redirect('/admin/products');
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            next(error);
+        });
 };

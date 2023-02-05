@@ -11,7 +11,8 @@ const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
 const authRouter = require('./routes/auth');
 
-const errorPage = require('./controllers/404');
+const noPage = require('./controllers/404');
+const errorPage = require('./controllers/500');
 // const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
 
@@ -46,6 +47,12 @@ app.use(csrf());
 app.use(flash());
 
 app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.loggedIn;  // This tells express to pass this isAuthenticated
+    res.locals.csrfToken = req.csrfToken();             // and csrfToken with every response cycle after request finishes execution.
+    next();
+})
+
+app.use((req, res, next) => {
     if (!req.session.user) {
         // console.log("Inside app.js -> No user");
         return next();
@@ -54,24 +61,30 @@ app.use((req, res, next) => {
     // console.log("Hello");
     User.findById(req.session.user._id)
         .then(user => {
+            if (!user) {
+                next();
+            }
             req.user = user;
             // console.log("Inside app.js -> findById");
             next();
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            // console.log(err)
+            throw new Error(err); // This error would not be catched by the universal error handling middleware. Because it in inside async code. What we instead need to do is call next(new Error(err)). As we did in catch block in various pplaces.
+        });
 })
 
-app.use((req, res, next) => {
-    res.locals.isAuthenticated = req.session.loggedIn;
-    res.locals.csrfToken = req.csrfToken();
-    next();
-})
 
 // app.use(authRouter);
 app.use('/admin', adminRouter);
 app.use(shopRouter);
 app.use(authRouter);
-app.use(errorPage.noPage);
+app.get('/500', errorPage.errorPage);
+app.use(noPage.noPage);
+
+app.use((error, req, res, next) => {
+    res.redirect('/500');
+});
 
 // const server = http.createServer(app);
 
