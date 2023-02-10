@@ -6,6 +6,7 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
+const multer = require('multer');
 
 const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
@@ -25,6 +26,27 @@ const store = new MongoDBStore(
     }
 );
 
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        // console.log("Destianation");
+        cb(null, 'images');
+    },
+
+    filename: (req, file, cb) => {
+        // console.log("Filename");
+        cb(null, new Date().toDateString() + '-' + file.originalname);
+    }
+});
+
+const filterType = (req, file, cb) => {
+    if (file.mimetype == 'image/png' || file.mimetype == 'image/jpg' || file.mimetype == 'image/jpeg') {
+        cb(null, true);
+    }
+    else {
+        cb(null, false);
+    }
+}
+
 app.set('view engine', 'ejs');          // Here you tell express which engine to use when it finds a template
 app.set('views', 'views');              // Here you tell express where to find these templates. default folder is views, 
 //if you do not have any folder named views then it's necessary to mention it here
@@ -36,10 +58,12 @@ app.set('views', 'views');              // Here you tell express where to find t
 // });
 // console.log(process.env);
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(multer({ storage: fileStorage, fileFilter: filterType }).single('image'));
 // app.use(express.urlencoded({ extended: true }));
 // app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));        // Used to serve static things like css and images. Now those can be accessed 
 // at <url>/public
+app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(session({ secret: 'dassic', saveUninitialized: false, resave: false, store: store }));    // resave=false means the session will not be saved on every request but
 // if any hting changes in the session. saveUniitialized=false means that no session will be saved for a request where it doesn't need to be saved.
 

@@ -17,7 +17,6 @@ router.get('/products', isAuth, adminController.getProducts);
 // /admin/add-product => POST
 router.post('/add-product',
     isAuth,
-    body('imageUrl').isURL().withMessage('Enter a valid URL!'),
     body('price').isFloat().withMessage('Enter a valid price of the product!'),
     adminController.postAddProduct);
 
@@ -25,7 +24,6 @@ router.get('/edit-product/:productId', isAuth, adminController.getEditProduct);
 
 router.post('/edit-product',
     isAuth,
-    body('imageUrl').isURL().withMessage('Enter a valid URL!'),
     body('price').isFloat().withMessage('Enter a valid price of the product!'),
     adminController.postEditProduct);
 

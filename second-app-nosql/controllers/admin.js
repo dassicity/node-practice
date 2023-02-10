@@ -1,6 +1,7 @@
 const Product = require('../models/product');
 const { validationResult } = require('express-validator/check')
 const mongoose = require('mongoose');
+const fs = require('fs');
 
 exports.getAddProduct = (req, res, next) => {
     res.render('admin/add-product', {
@@ -14,11 +15,24 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
+    const image = req.file;
     const price = req.body.price;
     const description = req.body.description;
-
+    // console.log(imageUrl);
+    // console.log(price);
+    // console.log("Above this line");
     const error = validationResult(req);
+
+    if (!image) {
+        return res.status(422).render('admin/add-product', {
+            pageTitle: 'Add Product',
+            path: '/admin/add-product',
+            // editing: false,
+            errorMessage: "Please upload a valid image",
+            oldData: { title: title, price: price, description: description },
+        });
+    }
+
     // console.log(error);
     if (!error.isEmpty()) {
         return res.status(422).render('admin/add-product', {
@@ -26,9 +40,11 @@ exports.postAddProduct = (req, res, next) => {
             path: '/admin/add-product',
             // editing: false,
             errorMessage: error.array()[0].msg,
-            oldData: { title: title, imageUrl: imageUrl, price: price, description: description },
+            oldData: { title: title, price: price, description: description },
         });
     }
+
+    const imageUrl = image.path;
 
     const product = new Product({
         title: title,
@@ -91,8 +107,8 @@ exports.postEditProduct = (req, res, next) => {
     const prodId = req.body.productId;
     const updatedTitle = req.body.title;
     const updatedPrice = req.body.price;
-    const updatedImageUrl = req.body.imageUrl;
     const updatedDesc = req.body.description;
+    const image = req.file;
 
     const error = validationResult(req);
     // console.log(error);
@@ -107,6 +123,8 @@ exports.postEditProduct = (req, res, next) => {
         });
     }
     console.log(prodId);
+
+
     Product.findById(prodId)
         .then(product => {
             if (product.userId.toString() !== req.user._id.toString()) {
@@ -115,7 +133,14 @@ exports.postEditProduct = (req, res, next) => {
             product.title = updatedTitle;
             product.price = updatedPrice;
             product.description = updatedDesc;
-            product.imageUrl = updatedImageUrl;
+            if (image) {
+                fs.unlink(image.path, (err) => {
+                    if (err) {
+                        next(err);
+                    }
+                })
+                product.imageUrl = image.path;
+            };
             return product.save()
                 .then(result => {
                     console.log('UPDATED PRODUCT!');
@@ -150,7 +175,18 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
-    Product.deleteOne({ _id: prodId, userId: req.user._id })
+    Product.findById(prodId)
+        .then(product => {
+            if (!product) {
+                return next(new Error("Product not found!"))
+            }
+            fs.unlink(product.imageUrl, (err) => {
+                if (err) {
+                    return next(new Error("Something wronf with the product!"))
+                }
+            })
+            return Product.deleteOne({ _id: prodId, userId: req.user._id });
+        })
         .then(() => {
             // console.log('DESTROYED PRODUCT');
             res.redirect('/admin/products');

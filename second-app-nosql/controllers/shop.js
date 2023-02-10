@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+const PdfDocument = require('pdfkit');
 
 const Product = require('../models/product');
 const Order = require('../models/order');
@@ -139,4 +142,55 @@ exports.getOrders = (req, res, next) => {
             error.httpStatusCode = 500;
             next(error);
         });
+};
+
+exports.getInvoice = (req, res, next) => {
+
+    const orderId = req.params.orderId;
+    Order.findById(orderId)
+        .then(order => {
+            if (!order) {
+                return next(new Error('Order not found!'));
+            }
+
+            if (order.user.userId.toString() !== req.user._id.toString()) {
+                return next(new Error('Unauthorized!'));
+            }
+            const invoiceName = 'invoice-' + orderId + '.pdf';
+
+            const invoicePath = path.join('data', 'invoices', invoiceName);
+
+            const file = new PdfDocument();
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'inline; filename="' + invoiceName + '"');
+            file.pipe(fs.createWriteStream(invoicePath));
+            file.pipe(res);
+
+            file.fontSize(27).text("Invoice", {
+                underline: true,
+            });
+            let totalPrice = 0;
+
+            order.products.forEach(ord => {
+                totalPrice += ord.product.price * ord.quantity;
+                file.fontSize(15).text(ord.product.title + "  -  " + ord.quantity + " X " + ord.product.price + "   =   " + (ord.product.price * ord.quantity));
+            })
+            file.fontSize('20').text("Total Price   =   " + totalPrice);
+            file.end();
+            // fs.readFile(invoicePath, (err, data) => {
+            //     if (err) {
+            //         return next(err);
+            //     }
+            //     res.setHeader('Content-Type', 'application/pdf');
+            //     res.setHeader('Content-Disposition', 'attachment; filename="' + invoiceName + '"');
+            //     res.send(data);
+
+            // })
+
+            // const file = fs.createReadStream(invoicePath);
+            // file.pipe(res);
+
+        })
+        .catch(err => next(err));
+
 };
