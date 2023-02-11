@@ -3,6 +3,8 @@ const { validationResult } = require('express-validator/check')
 const mongoose = require('mongoose');
 const fs = require('fs');
 
+const fileHelper = require('../util/fileHelper');
+
 exports.getAddProduct = (req, res, next) => {
     res.render('admin/add-product', {
         pageTitle: 'Add Product',
@@ -134,12 +136,9 @@ exports.postEditProduct = (req, res, next) => {
             product.price = updatedPrice;
             product.description = updatedDesc;
             if (image) {
-                fs.unlink(image.path, (err) => {
-                    if (err) {
-                        next(err);
-                    }
-                })
+                fileHelper.deleteFile(product.imageUrl);
                 product.imageUrl = image.path;
+                // console.log(product.imageUrl);
             };
             return product.save()
                 .then(result => {
@@ -148,6 +147,7 @@ exports.postEditProduct = (req, res, next) => {
                 })
         })
         .catch(err => {
+            console.log(err);
             const error = new Error(err);
             error.httpStatusCode = 500;
             next(error);
@@ -180,11 +180,8 @@ exports.postDeleteProduct = (req, res, next) => {
             if (!product) {
                 return next(new Error("Product not found!"))
             }
-            fs.unlink(product.imageUrl, (err) => {
-                if (err) {
-                    return next(new Error("Something wronf with the product!"))
-                }
-            })
+            req.user.removeFromCart(prodId);
+            fileHelper.deleteFile(product.imageUrl);
             return Product.deleteOne({ _id: prodId, userId: req.user._id });
         })
         .then(() => {
