@@ -5,17 +5,36 @@ const PdfDocument = require('pdfkit');
 const Product = require('../models/product');
 const Order = require('../models/order');
 
+const ITEMS_PER_PAGE = 2;
+
 exports.getProducts = (req, res, next) => {
-    Product.find()
+    const page = +req.query.page || 1;
+    let totalProducts;
+    Product
+        .find()
+        .countDocuments()
+        .then(numProducts => {
+            totalProducts = numProducts;
+            return Product.find()
+                .skip((page - 1) * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE)
+        })
         .then(products => {
             // console.log(products);
             res.render('shop/product-list', {
                 prods: products,
                 pageTitle: 'All Products',
                 path: '/products',
+                currentPage: page,
+                hasNextPage: page * ITEMS_PER_PAGE < totalProducts,
+                hasPreviousPage: page > 1,
+                nextPage: page + 1,
+                previousPage: page - 1,
+                lastPage: Math.ceil(totalProducts / ITEMS_PER_PAGE),
             });
         })
         .catch(err => {
+            // console.log(err);
             const error = new Error(err);
             error.httpStatusCode = 500;
             next(error);
@@ -40,15 +59,35 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-    Product.find()
+    const page = +req.query.page || 1;
+    let totalProducts;
+    Product
+        .find()
+        .countDocuments()
+        .then(numProducts => {
+            totalProducts = numProducts;
+            // console.log(totalProducts);
+            return Product.find()
+                .skip((page - 1) * ITEMS_PER_PAGE)
+                .limit(ITEMS_PER_PAGE)
+        })
         .then(products => {
+            // console.log(products);
             res.render('shop/index', {
                 prods: products,
                 pageTitle: 'Shop',
                 path: '/',
+                currentPage: page,
+                hasNextPage: page * ITEMS_PER_PAGE < totalProducts,
+                hasPreviousPage: page > 1,
+                nextPage: page + 1,
+                previousPage: page - 1,
+                lastPage: Math.ceil(totalProducts / ITEMS_PER_PAGE),
             });
+            // console.log("Rendered");
         })
         .catch(err => {
+            // console.log(err);
             const error = new Error(err);
             error.httpStatusCode = 500;
             next(error);
