@@ -141,6 +141,7 @@ mongoose.connect(MONGODB_URI)
         // console.log("Connected to DB");
         // https.createServer({ key: privateKey, cert: certificate }, app).listen(process.env.PORT || 3000);
         app.listen(process.env.PORT || 3000);
+        console.log("connected to DB");
     }).catch(err => {
         console.log(err);
     })
