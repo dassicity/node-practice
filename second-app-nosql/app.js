@@ -1,12 +1,18 @@
 const express = require('express');
-const bodyParser = require('body-parser');
+const fs = require('fs');
+const https = require('https');
 const path = require('path');
+
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
 const flash = require('connect-flash');
 const multer = require('multer');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
 
 const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
@@ -17,11 +23,12 @@ const errorPage = require('./controllers/500');
 // const mongoConnect = require('./util/database').mongoConnect;
 const User = require('./models/user');
 
+const MONGODB_URI = `${process.env.MONGODB_URI}`
 
 const app = express();
 const store = new MongoDBStore(
     {
-        uri: 'mongodb+srv://dassic:Dassic007@cluster0.ad9yl.mongodb.net/shop?',
+        uri: MONGODB_URI,
         collection: 'sessions'
     }
 );
@@ -47,6 +54,9 @@ const filterType = (req, file, cb) => {
     }
 }
 
+// const privateKey = fs.readFileSync('server.key');
+// const certificate = fs.readFileSync('server.cert');
+
 app.set('view engine', 'ejs');          // Here you tell express which engine to use when it finds a template
 app.set('views', 'views');              // Here you tell express where to find these templates. default folder is views, 
 //if you do not have any folder named views then it's necessary to mention it here
@@ -57,6 +67,13 @@ app.set('views', 'views');              // Here you tell express where to find t
 //     next();                         // allow the request to continue to the next middleware in line
 // });
 // console.log(process.env);
+
+const accessLogs = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+
+app.use(helmet());  // adds more customized headers for security
+app.use(compression()); // compresses assets before sending any request
+app.use(morgan('combined', { stream: accessLogs }));
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ storage: fileStorage, fileFilter: filterType }).single('image'));
 // app.use(express.urlencoded({ extended: true }));
@@ -119,10 +136,11 @@ app.use((error, req, res, next) => {
 //     app.listen(3000);
 // });
 
-mongoose.connect('mongodb+srv://dassic:Dassic007@cluster0.ad9yl.mongodb.net/shop?retryWrites=true&w=majority')
+mongoose.connect(MONGODB_URI)
     .then(result => {
         // console.log("Connected to DB");
-        app.listen(3000);
+        // https.createServer({ key: privateKey, cert: certificate }, app).listen(process.env.PORT || 3000);
+        app.listen(process.env.PORT || 3000);
     }).catch(err => {
         console.log(err);
     })

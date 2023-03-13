@@ -7,11 +7,11 @@ const { validationResult } = require('express-validator/check');
 
 const User = require('../models/user');
 const user = require('../models/user');
-sgMail.setApiKey(API_KEY);
+sgMail.setApiKey(process.env.API_KEY);
 
 const transporter = nodemailer.createTransport(sendgridTransport({
     auth: {
-        api_key: API_KEY,
+        api_key: process.env.API_KEY,
     }
 }))
 
